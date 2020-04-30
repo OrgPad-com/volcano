@@ -1,0 +1,15 @@
+/*.log
+/target
+/*-init.clj
+/resources/js
+/resources/css
+/target
+/build
+out
+**/*.iml
+/.idea
+/.shadow-cljs
+/node_modules
+/.lein-repl-history
+/.nrepl-port
+/.cpcache/
