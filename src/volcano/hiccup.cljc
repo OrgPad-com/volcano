@@ -12,22 +12,25 @@
 
 (defn expand-styles
   "Replaces reagent style maps with style strings, expected by Hiccup library."
-  [[tag maybe-attributes & children :as hiccup]]
-  (cond (not hiccup) nil
-        (string? hiccup) hiccup
-        (not (map? maybe-attributes)) (->> children (into [maybe-attributes])
-                                           (map expand-styles) (into [tag]))
-        :else (into [tag (style->str maybe-attributes)]
-                    (map expand-styles children))))
+  [hiccup]
+  (cond (seq? hiccup) (map expand-styles hiccup)
+        (not (vector? hiccup)) hiccup
+        :else (let [[tag maybe-attributes & children] hiccup]
+                (if (not (map? maybe-attributes))
+                  (->> children (into [maybe-attributes])
+                       (map expand-styles) (into [tag]))
+                  (into [tag (style->str maybe-attributes)]
+                        (map expand-styles children))))))
 
 (defn- expand-resources-inner
   "Returns a sequence of hiccups in which all resource keys are replaced with resource values."
   [resources hiccup]
-  (cond (not hiccup) nil
+  (cond (seq? hiccup) (->> hiccup (map (partial expand-resources-inner resources))
+                           (apply concat))
         (contains? resources hiccup) (->> hiccup (get resources)
                                           (map (partial expand-resources-inner resources))
                                           (apply concat))
-        (or (keyword? hiccup) (map? hiccup) (string? hiccup)) [hiccup]
+        (not (vector? hiccup)) [hiccup]
         :else (let [[tag & children] hiccup]
                 [(into [tag] (apply concat (map (partial expand-resources-inner resources) children)))])))
 

@@ -13,3 +13,4 @@ out
 /.lein-repl-history
 /.nrepl-port
 /.cpcache/
+/pom.xml
