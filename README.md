@@ -82,6 +82,7 @@ Somewhere in a .cljc file, define a config map:
    :default-template [:html
                       [:head
                        [:title "Your website title"]
+                       [:meta {:charset "utf-8"}]
                        [:link {:href "css/website.css" :rel "stylesheet" :type "text/css"}]]
                       [:body :volcano/hiccups]]
    :exclude-files    #{"index.html"}
@@ -112,6 +113,24 @@ To do live code reloading in development, write the following code in a .cljs fi
   []
   (volcano/set-routing! config/config)
   (mount-root))
+```
+
+Inside resources, add `index.html` having the following:
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Klavik.cz - dev</title>
+    <meta charset='utf-8'>
+    <link href="/css/klavik.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<div id="app"></div>
+<script src="/js/main.js"></script>
+</body>
+</html>
+
 ```
 
 Also write your `shadow-cljs.edn` file looking like this:
@@ -151,11 +170,51 @@ the changes will immediately show in the browser.
 
 ### Building static web for production
 
-You just call this function:
+You just call this function from Clojure:
 
 ```clojure
 (build/build-web! config/config)
 ```
 
-It will copy the non-excluded static resources to the build directory. And it builds a single html file for each
-defined site.
+You can call it from REPL or put it inside `-main` and running it via `lein run`. It will copy the non-excluded static
+resources to the build directory. Then, it builds a single html file for each defined site.
+
+## Structure of config map
+
+The following keys are currently used:
+
+*  `:resource-dir` - A path to the resource directory from which static files (images, CSS, etc.) are copied.
+*  `:target-dir` - A path in which `build/build-web!` function builds the static web. The directory itself is erased
+                   on the start.
+*  `:routes` - A [Bidi data structure](https://github.com/juxt/bidi) describing the routes on your web. Not all routes
+               have to be used by static websites, so you can easily link your static websites to your SPA.
+*  `:sites` - A map from site-id to a map describing a single generated site. Each site-id is a keyword. Each such map
+              uses these keys:
+   * `:hiccups` - A sequence of hiccup, one for each top element in the page. In development, they are inserted inside
+                  `<div id="app">` in `index.html`. In production, they replace `:volcano/hiccups` in site template.
+   * `:template` - When set, it is used for this site instead of the default template. See below how template works.
+*  `:default-template` - An arbitrary hiccup used to generate your site in production. The ocurrence of `:volcano/hiccups`
+                         is replaced by the sequence of site's hiccups. Also, resource keys are replaced recursively.
+*  `:default-site` - The side-id which is displayed in development when the address does not match any site's route.
+*  `:resources` - A map from resource-ids to sequences of hiccups. When a resource-id is used within any hiccup or
+                  template, it is replaced by this sequence. The replacement works recursively.
+*  `:exclude-dirs` - A set of dirs which are excluded for copying from `:resource-dir` to `:target-dir` in production.
+*  `:exclude-files` - A set of files which are excluded, as above.
+
+To inline content of static files into your site, you can load them as resources. Your files have to be placed inside
+of your src directory. For instance, suppose that we have `src/my-web/test.txt`. To include its content into the site,
+write the following:
+
+```clojure
+(ns my-web.config
+  (:require [bidi.bidi :as b]
+            #?(:cljs [shadow.resource :as resource])
+            #?(:clj [clojure.java.io :as io])))
+
+{:resource/test [#?(:clj  (slurp (io/resource "my-web/test.txt"))
+                    :cljs (resource/inline "my-web/test.txt"))]}
+```
+
+And use `:resource/test` inside your hiccups. When you update `src/my-web/test.txt`, its value is immediately changed
+in the browser as well. You can use this to include script, pieces of code, etc. Down the road, we might add markdown
+parsing as well.
