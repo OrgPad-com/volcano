@@ -33,7 +33,7 @@ a microframework for generating static web. If you are familiar with Clojure(Scr
 
 ## How it works
 
-You just write a single config map describing your entire web. Each site is a sequence in data in Hiccup format.
+You just write a single config map describing your entire web. Each site is a sequence of data in Hiccup format.
 In development, Volcano runs your Web as a SPA using ClojureScript, [Shadow-cljs](http://shadow-cljs.org/) and
 [Reagent](https://github.com/reagent-project/reagent). When you do any changes to the config map, you see them
 immediately. For production, Volcano builds static HTML files of your Web using Clojure which you can deploy online
