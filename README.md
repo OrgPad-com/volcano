@@ -133,7 +133,29 @@ Inside resources, add `index.html` having the following:
 
 ```
 
-Also write your `shadow-cljs.edn` file looking like this:
+Write your `package.json` like this:
+
+```json
+{
+  "devDependencies": {
+    "shadow-cljs": "2.8.109"
+  },
+  "dependencies": {
+    "create-react-class": "^15.6.3",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  }
+}
+```
+
+Then run the following:
+
+```shell script
+npm install
+npm install -g shadow-cljs
+```
+
+Write your `shadow-cljs.edn` file looking like this:
 
 ```clojure
 {:source-paths ["src"]
