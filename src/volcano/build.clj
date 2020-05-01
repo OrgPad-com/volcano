@@ -2,7 +2,8 @@
   (:require [me.raynes.fs :as fs]
             [hiccup.core :as hiccup]
             [volcano.hiccup :as volcano-hiccup]
-            [bidi.bidi :as b]))
+            [bidi.bidi :as b]
+            [clojure.string :as str]))
 
 (defn- copy-resources!
   "Copies all files from resources/ except index.html and js directory into build/."
@@ -26,8 +27,11 @@
   [site-key {:keys [sites routes default-template target-dir] :as config}]
   (println "Building site" site-key "...")
   (let [{:keys [hiccups template] :or {template default-template}} (get sites site-key)
-        path (str target-dir (b/path-for routes site-key))
+        route (b/path-for routes site-key)
+        path (str target-dir route)
         content (hiccup/html (generate-hiccup hiccups template config))]
+    (when-let [last-index (str/last-index-of (subs route 1) \/)]
+      (fs/mkdirs (str target-dir (subs route 0 (inc last-index)))))
     (spit path content)))
 
 (defn- build-sites!
@@ -37,6 +41,7 @@
     (build-site! site-key config)))
 
 (defn build-web!
+  "Builds a static web for the given config."
   [config]
   (copy-resources! config)
   (build-sites! config)
