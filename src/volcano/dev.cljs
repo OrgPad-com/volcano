@@ -18,7 +18,7 @@
   [{:keys [sites resources]}]
   (let [hiccups (:hiccups (get sites @current-route))]
     (into [:<>] (if hiccups
-                  (volcano-hiccup/expand-resources resources hiccups)
+                  (map (partial volcano-hiccup/expand-resources resources) hiccups)
                   [[:div "Site " @current-route " not found, try to reload the page!"]]))))
 
 (defn set-routing!
