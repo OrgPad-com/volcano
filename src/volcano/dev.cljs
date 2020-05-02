@@ -23,9 +23,12 @@
 
 (defn set-routing!
   "Sets HTML5 routing and history."
-  [{:keys [routes default-route]}]
+  [{:keys [routes default-route pages]}]
   (let [path (-> js/window .-location .-pathname)]
-    (reset! current-route (or (:handler (b/match-route routes path)) default-route))
+    (reset! current-route (let [route (:handler (b/match-route routes path))]
+                            (if (contains? pages route)
+                              route
+                              default-route)))
     (accountant/configure-navigation!
       {:nav-handler       (partial update-route routes)
        :path-exists?      #(:handler (b/match-route routes %))
