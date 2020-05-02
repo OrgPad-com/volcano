@@ -33,7 +33,7 @@ a microframework for generating static web. If you are familiar with Clojure(Scr
 
 ## How it works
 
-You just write a single config map describing your entire web. Each site is a sequence of data in Hiccup format.
+You just write a single config map describing your entire website. Each page is a sequence of data in Hiccup format.
 In development, Volcano runs your Web as a SPA using ClojureScript, [Shadow-cljs](http://shadow-cljs.org/) and
 [Reagent](https://github.com/reagent-project/reagent). When you do any changes to the config map, you see them
 immediately. For production, Volcano builds static HTML files of your Web using Clojure which you can deploy online
@@ -45,7 +45,7 @@ Include this dependency into your project:
 
 [![Clojars Project](http://clojars.org/orgpad/volcano/latest-version.svg)](http://clojars.org/orgpad/vulcano)
 
-### Defining site config
+### Defining website config
 
 Somewhere in a .cljc file, define a config map:
 
@@ -54,42 +54,42 @@ Somewhere in a .cljc file, define a config map:
   (:require [bidi.bidi :as b]))
 
 (def routes
-  ["" [["/index.html" :site/index]
-       ["/contact.html" :site/contact]]])
+  ["" [["/index.html" :page/index]
+       ["/contact.html" :page/contact]]])
 
-(def index
+(defn index []
   (list
     [:h1.colored "Index"]
     [:div {:style {:color "green"}} "Some introductory text: "
-     [:a {:href (b/path-for routes :site/contact)} "Go to contacts"]]
+     [:a {:href (b/path-for routes :page/contact)} "Go to contacts"]]
     [:ul
      (for [index (range 10)]
        [:li "Element " (inc index)])]))
 
-(def contact
+(defn contact []
   (list
     [:h1 "Contact"]
     [:div "My email address is " [:b "info@orgpad.com"]]
-    [:a {:href (b/path-for routes :site/index)} "Back to index"]))
+    [:a {:href (b/path-for routes :page/index)} "Back to index"]))
 
 (defn config []
   {:resource-dir     "resources"
    :target-dir       "build"
-   :sites            {:site/index   {:hiccups index}
-                      :site/contact {:hiccups contact}}
+   :pages            {:page/index   {:hiccups (index)}
+                      :page/contact {:hiccups (contact)}}
    :routes           routes
-   :default-route    :site/index
+   :default-route    :page/index
    :default-template [:html
                       [:head
                        [:title "Your website title"]
                        [:meta {:charset "utf-8"}]
-                       [:link {:href "css/website.css" :rel "stylesheet" :type "text/css"}]]
+                       [:link {:href "/css/my-web.css" :rel "stylesheet" :type "text/css"}]]
                       [:body :volcano/hiccups]]
    :exclude-files    #{"index.html"}
    :exclude-dirs     #{"js"}})
 ```
 
-We are defining routing for our website, giving hiccup for two sites and putting everything together into a single
+We are defining routing for our website, giving hiccup for two pages and putting everything together into a single
 config map.
 
 ### Live code reloading in development
@@ -103,7 +103,7 @@ To do live code reloading in development, write the following code in a .cljs fi
             [my-web.config :as config]))
 
 (defn mount-root
-  "Rendering of the current site inside :div#app element."
+  "Rendering of the current page inside :div#app element."
   []
   (r-dom/render [volcano/render (config/config)]
                 (.getElementById js/document "app")))
@@ -121,16 +121,15 @@ Inside resources, add `index.html` having the following:
 <!doctype html>
 <html lang="en">
 <head>
-    <title>Klavik.cz - dev</title>
+    <title>My-web - dev</title>
     <meta charset='utf-8'>
-    <link href="/css/klavik.css" rel="stylesheet" type="text/css">
+    <link href="/css/my-web.css" rel="stylesheet" type="text/css">
 </head>
 <body>
 <div id="app"></div>
 <script src="/js/main.js"></script>
 </body>
 </html>
-
 ```
 
 If you are unfamiliar with [Shadow-cljs](http://shadow-cljs.org/), you need to install [NodeJS](https://nodejs.org/en/).
@@ -153,30 +152,34 @@ Write your `shadow-cljs.edn` file looking like this:
                 [venantius/accountant "0.2.5"]
                 [binaryage/devtools "0.9.10"]]
  :nrepl        {:port 9500}
- :builds       {:client {:target     :browser
-                         :output-dir "resources/js"
-                         :asset-path "/js"
-                         :modules    {:main {:init-fn my-web.dev/init}}
-                         :devtools   {:http-root      "resources"
-                                      :http-port      3500
-                                      :after-load     my-web.dev/mount-root
-                                      :watch-dir      "resources"
-                                      :browser-inject :main}}}}
+ :builds       {:web {:target     :browser
+                      :output-dir "resources/js"
+                      :asset-path "/js"
+                      :modules    {:main {:init-fn my-web.dev/init}}
+                      :devtools   {:http-root      "resources"
+                                   :http-port      3500
+                                   :after-load     my-web.dev/mount-root
+                                   :watch-dir      "resources"
+                                   :browser-inject :main}}}}
 ```
 
 You run it in development as:
 
 ```shell script
-shadow-cljs watch client
+shadow-cljs watch web
 ```
 
 Open [http://localhost:3500](http://localhost:3500) in your browser to see the website immediately. If you click on
-a link, it will change the current site shown. Only when you change routing or add a new site, you will need to reload
-the page.
+a link, it will change the current page shown. Only when you change routing or add a new page, you will need to reload
+the browser.
 
 Also, if you update any used CSS file inside `resources`, for instance by running
 [Lein Less](https://github.com/montoux/lein-less) or [Garden](https://github.com/noprompt/lein-garden),
 the changes will immediately show in the browser.
+
+If your code is spread through multiple namespaces, we recommend using functions with zero arguments instead of defining
+symbols, otherwise hot-code reloading might not work. Alternatively, you can add `:reload-strategy :full` into
+`:devtools` in `shadow-cljs.edn`, but for a larger web it might slow down everything.
 
 ### Building static web for production
 
@@ -187,7 +190,7 @@ You just call this function from Clojure:
 ```
 
 You can call it from REPL or put it inside `-main` and running it via `lein run`. It will copy the non-excluded static
-resources to the build directory. Then, it builds a single html file for each defined site.
+resources to the build directory. Then, it builds a single html file for each defined page.
 
 ## Structure of config map
 
@@ -197,22 +200,24 @@ The following keys are currently used:
 *  `:target-dir` - A path in which `build/build-web!` function builds the static web. The directory itself is erased
                    on the start.
 *  `:routes` - A [Bidi data structure](https://github.com/juxt/bidi) describing the routes on your web. Not all routes
-               have to be used by static websites, so you can easily link your static websites to your SPA.
-*  `:sites` - A map from site-id to a map describing a single generated site. Each site-id is a keyword. Each such map
+               have to be used by static pages, so you can easily link your static websites to your SPA.
+*  `:pages` - A map from pages-id to a map describing a single generated page. Each page-id is a keyword. Each such map
               uses these keys:
    * `:hiccups` - A sequence of hiccup, one for each top element in the page. In development, they are inserted inside
-                  `<div id="app">` in `index.html`. In production, they replace `:volcano/hiccups` in site template.
-   * `:template` - When set, it is used for this site instead of the default template. See below how template works.
-*  `:default-template` - An arbitrary hiccup used to generate your site in production. The ocurrence of `:volcano/hiccups`
-                         is replaced by the sequence of site's hiccups. Also, resource keys are replaced recursively.
-*  `:default-site` - The side-id which is displayed in development when the address does not match any site's route.
+                  `<div id="app">` in `index.html`. In production, they replace `:volcano/hiccups` in page template.
+                  For styles, you can use Reagent maps, they are automatically expanded into strings, i.e.,
+                  `:style {:color "red" :padding 2}` becomes `:style "color:red;paddding:2px"`.
+   * `:template` - When set, it is used for this page instead of the default template. See below how template works.
+*  `:default-template` - An arbitrary hiccup used to generate your page in production. The ocurrence of `:volcano/hiccups`
+                         is replaced by the sequence of page's hiccups. Also, resource keys are replaced recursively.
+*  `:default-route` - The page-id which is displayed in development when the address does not match any page's route.
 *  `:resources` - A map from resource-ids to sequences of hiccups. When a resource-id is used within any hiccup or
                   template, it is replaced by this sequence. The replacement works recursively.
 *  `:exclude-dirs` - A set of dirs which are excluded for copying from `:resource-dir` to `:target-dir` in production.
 *  `:exclude-files` - A set of files which are excluded, as above.
 
-To inline content of static files into your site, you can load them as resources. Your files have to be placed inside
-of your src directory. For instance, suppose that we have `src/my-web/test.txt`. To include its content into the site,
+To inline content of static files into your page, you can load them as resources. Your files have to be placed inside
+of your src directory. For instance, suppose that we have `src/my-web/test.txt`. To include its content into the page,
 write the following:
 
 ```clojure

@@ -14,12 +14,12 @@
     (reset! current-route new-route)))
 
 (defn render
-  "Renders the site for the current route."
-  [{:keys [sites resources]}]
-  (let [hiccups (:hiccups (get sites @current-route))]
+  "Renders the page for the current route."
+  [{:keys [pages resources]}]
+  (let [hiccups (:hiccups (get pages @current-route))]
     (into [:<>] (if hiccups
                   (map (partial volcano-hiccup/expand-resources resources) hiccups)
-                  [[:div "Site " @current-route " not found, try to reload the page!"]]))))
+                  [[:div "Page " @current-route " not found, try to reload the browser!"]]))))
 
 (defn set-routing!
   "Sets HTML5 routing and history."

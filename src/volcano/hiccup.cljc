@@ -6,7 +6,9 @@
   [{:keys [style] :as attributes}]
   (if (map? style)
     (assoc attributes :style (->> style (map (fn [[style-key style-value]]
-                                               (str (name style-key) ":" style-value)))
+                                               (str (name style-key) ":" (if (number? style-value)
+                                                                           (str style-value "px")
+                                                                           style-value))))
                                   (str/join ";")))
     attributes))
 

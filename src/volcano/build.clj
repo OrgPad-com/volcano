@@ -6,9 +6,9 @@
             [clojure.string :as str]))
 
 (defn- copy-resources!
-  "Copies all files from resources/ except index.html and js directory into build/."
+  "Copies all non-excluded files from resource-dir to target-dir."
   [{:keys [resource-dir target-dir exclude-files exclude-dirs]}]
-  (println "Copying static resources to build/ ...")
+  (println "Copying static resources to" target-dir "...")
   (fs/delete-dir target-dir)
   (fs/copy-dir resource-dir target-dir)
   (doseq [file exclude-files]
@@ -22,27 +22,27 @@
   (->> template (volcano-hiccup/expand-resources (assoc resources :volcano/hiccups hiccups))
       volcano-hiccup/expand-styles))
 
-(defn- build-site!
-  "Build a single site-key of the given keyword and hiccup."
-  [site-key {:keys [sites routes default-template target-dir] :as config}]
-  (println "Building site" site-key "...")
-  (let [{:keys [hiccups template] :or {template default-template}} (get sites site-key)
-        route (b/path-for routes site-key)
+(defn- build-page!
+  "Build a single page-id of the given keyword and hiccup."
+  [page-id {:keys [pages routes default-template target-dir] :as config}]
+  (println "Building site" page-id "...")
+  (let [{:keys [hiccups template] :or {template default-template}} (get pages page-id)
+        route (b/path-for routes page-id)
         path (str target-dir route)
         content (hiccup/html (generate-hiccup hiccups template config))]
     (when-let [last-index (str/last-index-of (subs route 1) \/)]
       (fs/mkdirs (str target-dir (subs route 0 (inc last-index)))))
     (spit path content)))
 
-(defn- build-sites!
+(defn- build-pages!
   "Builds all sites."
-  [{:keys [sites] :as config}]
-  (doseq [site-key (keys sites)]
-    (build-site! site-key config)))
+  [{:keys [pages] :as config}]
+  (doseq [page-id (keys pages)]
+    (build-page! page-id config)))
 
 (defn build-web!
   "Builds a static web for the given config."
   [config]
   (copy-resources! config)
-  (build-sites! config)
+  (build-pages! config)
   (println "All done in build."))
