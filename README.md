@@ -72,7 +72,7 @@ Somewhere in a .cljc file, define a config map:
     [:div "My email address is " [:b "info@orgpad.com"]]
     [:a {:href (b/path-for routes :site/index)} "Back to index"]))
 
-(def config
+(defn config []
   {:resource-dir     "resources"
    :target-dir       "build"
    :sites            {:site/index   {:hiccups index}
@@ -105,13 +105,13 @@ To do live code reloading in development, write the following code in a .cljs fi
 (defn mount-root
   "Rendering of the current site inside :div#app element."
   []
-  (r-dom/render [volcano/render config/config]
+  (r-dom/render [volcano/render (config/config)]
                 (.getElementById js/document "app")))
 
 (defn init
   "Init function of the dev."
   []
-  (volcano/set-routing! config/config)
+  (volcano/set-routing! (config/config))
   (mount-root))
 ```
 
@@ -133,26 +133,14 @@ Inside resources, add `index.html` having the following:
 
 ```
 
-Write your `package.json` like this:
-
-```json
-{
-  "devDependencies": {
-    "shadow-cljs": "2.8.109"
-  },
-  "dependencies": {
-    "create-react-class": "^15.6.3",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1"
-  }
-}
-```
-
-Then run the following:
+If you are unfamiliar with [Shadow-cljs](http://shadow-cljs.org/), you need to install [NodeJS](https://nodejs.org/en/).
+After that, run the following in the project directory:
 
 ```shell script
-npm install
 npm install -g shadow-cljs
+npm install react
+npm install react-dom
+npm install create-react-class
 ```
 
 Write your `shadow-cljs.edn` file looking like this:
@@ -178,7 +166,7 @@ Write your `shadow-cljs.edn` file looking like this:
 
 You run it in development as:
 
-```bash
+```shell script
 shadow-cljs watch client
 ```
 
@@ -195,7 +183,7 @@ the changes will immediately show in the browser.
 You just call this function from Clojure:
 
 ```clojure
-(build/build-web! config/config)
+(build/build-web! (config/config))
 ```
 
 You can call it from REPL or put it inside `-main` and running it via `lein run`. It will copy the non-excluded static
