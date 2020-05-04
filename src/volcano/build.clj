@@ -18,18 +18,20 @@
 
 (defn- generate-hiccup
   "Generates a hiccup from the given template with inserted hiccups, expanded resources and styles."
-  [hiccups template {:keys [resources]}]
-  (->> template (volcano-hiccup/expand-resources (assoc resources :volcano/hiccups hiccups))
-      volcano-hiccup/expand-styles))
+  [page-id {:keys [default-template resources routes pages] :as config}]
+  (let [{:keys [hiccups template] :or {template default-template}} (get pages page-id)]
+    (->> template (volcano-hiccup/expand-resources (assoc resources :volcano/hiccups hiccups))
+         (volcano-hiccup/replace-paths (b/path-for routes page-id) config)
+         volcano-hiccup/expand-styles)))
 
 (defn- build-page!
   "Build a single page-id of the given keyword and hiccup."
-  [page-id {:keys [pages routes default-template target-dir] :as config}]
+  [page-id {:keys [pages routes target-dir] :as config}]
   (println "Building site" page-id "...")
-  (let [{:keys [hiccups template] :or {template default-template}} (get pages page-id)
-        route (b/path-for routes page-id)
+  (let [{:keys [output-path]} (get pages page-id)
+        route (or output-path (b/path-for routes page-id))
         path (str target-dir route)
-        content (hiccup/html (generate-hiccup hiccups template config))]
+        content (hiccup/html (generate-hiccup page-id config))]
     (when-let [last-index (str/last-index-of (subs route 1) \/)]
       (fs/mkdirs (str target-dir (subs route 0 (inc last-index)))))
     (spit path content)))

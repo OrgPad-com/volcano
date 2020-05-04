@@ -208,6 +208,8 @@ The following keys are currently used:
                   For styles, you can use Reagent maps, they are automatically expanded into strings, i.e.,
                   `:style {:color "red" :padding 2}` becomes `:style "color:red;paddding:2px"`.
    * `:template` - When set, it is used for this page instead of the default template. See below how template works.
+   * `:output-path` - When set, this output path is used instead of the route path. For instance, we might have the
+                      route `/intro` but set the output path to `/intro.html`.
 *  `:default-template` - An arbitrary hiccup used to generate your page in production. The ocurrence of `:volcano/hiccups`
                          is replaced by the sequence of page's hiccups. Also, resource keys are replaced recursively.
 *  `:default-route` - The page-id which is displayed in development when the address does not match any page's route.
@@ -215,6 +217,8 @@ The following keys are currently used:
                   template, it is replaced by this sequence. The replacement works recursively.
 *  `:exclude-dirs` - A set of dirs which are excluded for copying from `:resource-dir` to `:target-dir` in production.
 *  `:exclude-files` - A set of files which are excluded, as above.
+*  `:relative-paths` - When set, the absolute paths are replaced by relative paths.
+*  `:path-prefix` - It replaces the absolute path prefix `/`.
 
 To inline content of static files into your page, you can load them as resources. Your files have to be placed inside
 of your src directory. For instance, suppose that we have `src/my-web/test.txt`. To include its content into the page,
