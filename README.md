@@ -14,7 +14,7 @@ It was introduced by Figwheel, and well, if you haven't seen these amazing video
 In [OrgPad](https://orgpad.com), we were happily using this in development and didn't even have data persistence for
 the first two months.
 
-We wanted to rebuild our [landing page](https//orgpad.com/about). The requirements are that it should consist of a
+We wanted to rebuild our [landing page](https://orgpad.com/about). The requirements are that it should consist of a
 few static webpages linked together, with the minimum amount of Javascript and CSS, so they load really fast even on
 a slow mobile connection. We wanted to use Clojure(Script) to be able to connect them to the rest of our codebase.
 So we were originally generating HTML using [Hiccup library](https://github.com/weavejester/hiccup). You do a change,
@@ -206,6 +206,54 @@ You just call this function from Clojure:
 (build/build-web! (config/config))
 ```
 
+You can call it from REPL or put it inside `-main` and running it via `lein run` (as done in the template). It will copy
+the non-excluded static resources to the build directory. Then, it builds a single html file for each defined page.
+For the config above, we get the following html files (pretty printed):
+
+#### index.html
+
+```html
+<html>
+  <head>
+    <title>Your website title</title>
+    <meta charset="utf-8" />
+    <link href="/css/my-web.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <h1 class="colored">Index</h1>
+    <div style="color:green">Some introductory text: <a href="/contact.html">Go to contacts</a></div>
+    <ul>
+      <li>Element 1</li>
+      <li>Element 2</li>
+      <li>Element 3</li>
+      <li>Element 4</li>
+      <li>Element 5</li>
+      <li>Element 6</li>
+      <li>Element 7</li>
+      <li>Element 8</li>
+      <li>Element 9</li>
+      <li>Element 10</li>
+    </ul>
+  </body>
+</html>
+```
+
+#### contact.html
+
+```html
+<html>
+  <head>
+    <title>Your website title</title>
+    <meta charset="utf-8" />
+    <link href="/css/my-web.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <h1>Contact</h1>
+    <div>My email address is <b>info@orgpad.com</b></div>
+    <a href="/index.html">Back to index</a>
+  </body>
+</html>
+```
 You can call it from REPL or put it inside `-main` and running it via `lein run` (as done in the template). It will copy
 the non-excluded static resources to the build directory. Then, it builds a single html file for each defined page.
 
