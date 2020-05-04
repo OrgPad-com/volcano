@@ -39,9 +39,22 @@ In development, Volcano runs your Web as a SPA using ClojureScript, [Shadow-cljs
 immediately. For production, Volcano builds static HTML files of your Web using Clojure which you can deploy online
 or further process. Since your code is runned by both Clojure and ClojureScript, it has to be written in .cljc files.
 
-## Getting started
+## Quick start
 
-Include this dependency into your project:
+You can use [Volcano Leiningen template](https://github.com/OrgPad-com/volcano-template) to quickly start a static
+website project:
+
+```shell script
+lein new volcano <project-name>
+```
+
+Use optional `+less` or `+garden` for CSS generators. You will get a project with two example pages and all
+configuration needed to run Volcano. Consult the generated README.md.
+
+## Setting up on your own
+
+Next, we explain how to setup Volcano as part of your existing project. First, include this dependency into your
+project:
 
 [![Clojars Project](http://clojars.org/orgpad/volcano/latest-version.svg)](http://clojars.org/orgpad/vulcano)
 
@@ -89,8 +102,8 @@ Somewhere in a .cljc file, define a config map:
    :exclude-dirs     #{"js"}})
 ```
 
-We are defining routing for our website, giving hiccup for two pages and putting everything together into a single
-config map.
+We are defining routing for our website using [Bidi](https://github.com/juxt/bidi), giving hiccup for two pages
+and putting everything together into a single config map.
 
 ### Live code reloading in development
 
@@ -115,7 +128,10 @@ To do live code reloading in development, write the following code in a .cljs fi
   (mount-root))
 ```
 
-Inside resources, add `index.html` having the following:
+The function `init` is called when dev is loaded in the browser, setting the HTML5 routing and history. Everytime a code
+is changed, `mount-root` function is called, rerendering the page content.
+
+Inside `resources` subdirectory, add `index.html` template having the following:
 
 ```html
 <!doctype html>
@@ -171,15 +187,16 @@ shadow-cljs watch web
 
 Open [http://localhost:3500](http://localhost:3500) in your browser to see the website immediately. If you click on
 a link, it will change the current page shown. Only when you change routing or add a new page, you will need to reload
-the browser.
+the browser. It also runs you nREPL server on port 9500 which is great for interactive development. 
 
 Also, if you update any used CSS file inside `resources`, for instance by running
 [Lein Less](https://github.com/montoux/lein-less) or [Garden](https://github.com/noprompt/lein-garden),
 the changes will immediately show in the browser.
 
-If your code is spread through multiple namespaces, we recommend using functions with zero arguments instead of defining
-symbols, otherwise hot-code reloading might not work. Alternatively, you can add `:reload-strategy :full` into
-`:devtools` in `shadow-cljs.edn`, but for a larger web it might slow down everything.
+If your code is spread through multiple namespaces, we recommend either using functions with zero arguments instead of
+defining symbols, or using Vars: `#'config` instead of `config`. Otherwise hot-code reloading might not propagate
+changes correctly. Alternatively, you can add `:reload-strategy :full` into `:devtools` in `shadow-cljs.edn`, but for
+a larger web it might slow down everything.
 
 ### Building static web for production
 
@@ -189,8 +206,8 @@ You just call this function from Clojure:
 (build/build-web! (config/config))
 ```
 
-You can call it from REPL or put it inside `-main` and running it via `lein run`. It will copy the non-excluded static
-resources to the build directory. Then, it builds a single html file for each defined page.
+You can call it from REPL or put it inside `-main` and running it via `lein run` (as done in the template). It will copy
+the non-excluded static resources to the build directory. Then, it builds a single html file for each defined page.
 
 ## Structure of config map
 
@@ -237,3 +254,9 @@ write the following:
 And use `:resource/test` inside your hiccups. When you update `src/my-web/test.txt`, its value is immediately changed
 in the browser as well. You can use this to include script, pieces of code, etc. Down the road, we might add markdown
 parsing as well.
+
+### Example websites
+
+Have you built something with Volcano? Let us know, so we can add it here:
+
+*   [Jiří Šmíd's personal web](https://www.smid-interim.cz/)

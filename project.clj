@@ -1,4 +1,4 @@
-(defproject orgpad/volcano "0.1.0-SNAPSHOT"
+(defproject orgpad/volcano "0.1.0"
   :description "Static web generator with hot-code reloading in development"
   :url "https://github.com/OrgPad-com/volcano"
   :license {:name "The MIT License"
