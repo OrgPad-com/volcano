@@ -21,6 +21,14 @@
                   (map (partial volcano-hiccup/expand-resources resources) hiccups)
                   [[:div "Page " @current-route " not found, try to reload the browser!"]]))))
 
+(defn load-scripts!
+  "Run this to eval the scripts given by resource-ids in :scripts. These scripts will be available
+  during the development."
+  [{:keys [resources scripts]}]
+  (doseq [script scripts
+          :let [code (first (get resources script))]]
+    (js/goog.global.eval code)))
+
 (defn set-routing!
   "Sets HTML5 routing and history."
   [{:keys [routes default-route pages]}]

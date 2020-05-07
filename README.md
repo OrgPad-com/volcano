@@ -118,6 +118,7 @@ To do live code reloading in development, write the following code in a .cljs fi
 (defn mount-root
   "Rendering of the current page inside :div#app element."
   []
+  (volcano/load-scripts! (config/config))
   (r-dom/render [volcano/render (config/config)]
                 (.getElementById js/document "app")))
 
@@ -280,30 +281,40 @@ The following keys are currently used:
 *  `:default-route` - The page-id which is displayed in development when the address does not match any page's route.
 *  `:resources` - A map from resource-ids to sequences of hiccups. When a resource-id is used within any hiccup or
                   template, it is replaced by this sequence. The replacement works recursively.
+*  `:scripts` - A sequences of resource-ids whose code is evaluated in development, so it can be tested in development.
 *  `:exclude-dirs` - A set of dirs which are excluded for copying from `:resource-dir` to `:target-dir` in production.
 *  `:exclude-files` - A set of files which are excluded, as above.
 *  `:relative-paths` - When set, the absolute paths are replaced by relative paths.
 *  `:path-prefix` - It replaces the absolute path prefix `/`.
 
-To inline content of static files into your page, you can load them as resources. Your files have to be placed inside
-of your src directory. For instance, suppose that we have `src/my-web/test.txt`. To include its content into the page,
-write the following:
+### Loading static files
+
+Since the development runs as a SPA in browser, we cannot easily load files from disk. But we can use
+`shadow.resource/inline` macro which loads the file in compilation time and inlines is content as a string.
+Your file has to be placed inside of your src directory. For instance, suppose that we have `src/my-web/test.txt`.
+To get its content, call the following:
 
 ```clojure
-(ns my-web.config
-  (:require [bidi.bidi :as b]
-            #?(:cljs [shadow.resource :as resource])
-            #?(:clj [clojure.java.io :as io])))
-
-{:resource/test [#?(:clj  (slurp (io/resource "my-web/test.txt"))
-                    :cljs (resource/inline "my-web/test.txt"))]}
+(resource/inline "my-web/test.txt")
 ```
 
-And use `:resource/test` inside your hiccups. When you update `src/my-web/test.txt`, its value is immediately changed
-in the browser as well. You can use this to include script, pieces of code, etc. Down the road, we might add markdown
-parsing as well.
+We can use `:resources` map to easily include the loaded content into your page. We can store it using the resource-id
+`:resource/test` in `:resources` map and place this id anywhere inside your hiccups or templates. When you update
+`src/my-web/test.txt`, its value is immediately changed in the browser as well. You can use this to include script,
+pieces of code, etc. Down the road, we might add markdown parsing as well.
 
-### Example websites
+### Including scripts
+
+To include external scripts, we can just add `<script>` tag with `src` inside your HTML. For development, you can add
+it to `index.html`, even if it is not needed for all generated pages. For static website, you can add it inside your
+page templates.
+
+To include inline scripts, you need to eval them in development to be able to access them from ClojureScript. Load your
+inline script from a file as a resource and add its resource-id into `:scripts`. In development, the script will get
+evaluated during hot code reloading whenever any code is updated. For building static websites, include this resource-id
+into your template.
+
+## Example websites
 
 Have you built something with Volcano? Let us know, so we can add it here:
 

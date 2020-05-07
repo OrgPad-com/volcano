@@ -1,6 +1,7 @@
 (ns volcano.build
   (:require [me.raynes.fs :as fs]
             [hiccup.core :as hiccup]
+            [hiccup.page :as page]
             [volcano.hiccup :as volcano-hiccup]
             [bidi.bidi :as b]
             [clojure.string :as str]))
@@ -31,7 +32,9 @@
   (let [{:keys [output-path]} (get pages page-id)
         route (or output-path (b/path-for routes page-id))
         path (str target-dir route)
-        content (hiccup/html (generate-hiccup page-id config))]
+        content (hiccup/html {:mode :html}
+                             (page/doctype :html5)
+                             (generate-hiccup page-id config))]
     (when-let [last-index (str/last-index-of (subs route 1) \/)]
       (fs/mkdirs (str target-dir (subs route 0 (inc last-index)))))
     (spit path content)))
