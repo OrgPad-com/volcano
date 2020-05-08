@@ -314,6 +314,16 @@ inline script from a file as a resource and add its resource-id into `:scripts`.
 evaluated during hot code reloading whenever any code is updated. For building static websites, include this resource-id
 into your template.
 
+To attach a JS function to an event, you have to write different code for development and for building the static
+website, using the reader literals. In development, attach a ClojureScript function calling the JS function using
+JS interop. For building static website, just call the JS function from string.
+
+```clojure
+[:div.button #?(:clj  {:onclick "send();"}
+                :cljs {:on-click #(js/send)})
+  "Send"]
+```
+
 ## Example websites
 
 Have you built something with Volcano? Let us know, so we can add it here:
