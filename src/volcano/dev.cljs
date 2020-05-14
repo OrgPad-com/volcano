@@ -19,7 +19,8 @@
   [:div {:style {:display          :flex
                  :background-color "black"
                  :justify-content  "center"
-                 :width            "100%"}}
+                 :width            "100%"
+                 :flex-wrap        "wrap"}}
    (for [page-id (sort (keys pages))]
      [:div {:key   page-id
             :style {:padding 5}}
