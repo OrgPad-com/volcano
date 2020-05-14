@@ -23,7 +23,8 @@
                  :flex-wrap        "wrap"}}
    (for [page-id (sort (keys pages))]
      [:div {:key   page-id
-            :style {:padding 5}}
+            :style {:padding     5
+                    :font-weight (when (= page-id @current-route) "bold")}}
       [:a {:href  (b/path-for routes page-id)
            :style {:color "white"}} (str page-id)]])])
 
