@@ -286,6 +286,8 @@ The following keys are currently used:
 *  `:exclude-files` - A set of files which are excluded, as above.
 *  `:relative-paths` - When set, the absolute paths are replaced by relative paths.
 *  `:path-prefix` - It replaces the absolute path prefix `/`.
+*  `:nav-bar` - When set true, a navigation bar for all pages is placed at the top of the pages in development. This is
+                useful when the pages are not linked together (for instance, when generating email templates).
 
 ### Loading static files
 
