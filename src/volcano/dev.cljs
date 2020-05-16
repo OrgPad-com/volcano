@@ -35,7 +35,8 @@
     (into [:<> (when nav-bar
                  (render-nav-bar config))]
           (if hiccups
-            (map (partial volcano-hiccup/expand-resources resources) hiccups)
+            (->> hiccups (map (partial volcano-hiccup/expand-resources resources))
+                 (map volcano-hiccup/unescape-strings))
             [[:div "Page " @current-route " not found, try to reload the browser!"]]))))
 
 (defn load-scripts!
