@@ -13,14 +13,12 @@
       <url>http://opensource.org/licenses/MIT</url>
     </license>
   </licenses>
-
   <scm>
     <url>https://github.com/OrgPad-com/volcano</url>
     <connection>scm:git:git://github.com/OrgPad-com/volcano.git</connection>
     <developerConnection>scm:git:ssh://github.com/OrgPad-com/volcano.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
-
   <dependencies>
     <dependency>
       <groupId>org.clojure</groupId>
@@ -33,19 +31,9 @@
       <version>1.10.742</version>
     </dependency>
     <dependency>
-      <groupId>bidi</groupId>
-      <artifactId>bidi</artifactId>
-      <version>2.1.6</version>
-    </dependency>
-    <dependency>
       <groupId>hiccup</groupId>
       <artifactId>hiccup</artifactId>
       <version>1.0.5</version>
-    </dependency>
-    <dependency>
-      <groupId>me.raynes</groupId>
-      <artifactId>fs</artifactId>
-      <version>1.4.6</version>
     </dependency>
     <dependency>
       <groupId>reagent</groupId>
@@ -57,20 +45,24 @@
       <artifactId>accountant</artifactId>
       <version>0.2.5</version>
     </dependency>
+    <dependency>
+      <groupId>bidi</groupId>
+      <artifactId>bidi</artifactId>
+      <version>2.1.6</version>
+    </dependency>
+    <dependency>
+      <groupId>me.raynes</groupId>
+      <artifactId>fs</artifactId>
+      <version>1.4.6</version>
+    </dependency>
   </dependencies>
-
   <build>
     <sourceDirectory>src</sourceDirectory>
   </build>
-
   <repositories>
     <repository>
       <id>clojars</id>
       <url>https://repo.clojars.org/</url>
-    </repository>
-    <repository>
-      <id>sonatype</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
     </repository>
   </repositories>
   <distributionManagement>
@@ -80,5 +72,4 @@
       <url>https://clojars.org/repo</url>
     </repository>
   </distributionManagement>
-
 </project>
