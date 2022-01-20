@@ -330,4 +330,6 @@ JS interop. For building static website, just call the JS function from string.
 
 Have you built something with Volcano? Let us know, so we can add it here:
 
+*   [OrgPad landing page](https://orgpad.com/l/intro)
+*   [Law and accountant office Klavík](https://www.klavik.cz)
 *   [Jiří Šmíd's personal web](https://www.smid-interim.cz/)
