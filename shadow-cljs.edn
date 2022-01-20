@@ -1,0 +1,20 @@
+{:source-paths ["src"]
+ :dependencies [[reagent "0.10.0"]
+                [binaryage/devtools "0.9.10"]
+                [bidi "2.1.6"]
+                [venantius/accountant "0.2.5"]]
+ :nrepl        {:port 9500}
+ :builds       {:example       {:target     :browser
+                                :output-dir "example/resources/js"
+                                :asset-path "/js"
+                                :modules    {:main {:init-fn volcano.example.dev/init}}
+                                :devtools   {:http-root      "example/resources"
+                                             :http-port      3500
+                                             :after-load     volcano.example.dev/mount-root
+                                             :watch-dir      "example/resources"
+                                             :browser-inject :main}}
+                :build-example {:target           :node-script
+                                :main             volcano.example.build/build
+                                :output-to        "example/example.js"
+                                :devtools         {:autoload true}
+                                :compiler-options {:optimizations :simple}}}}
