@@ -1,29 +1,6 @@
 (ns volcano.hiccup
   (:require [clojure.string :as str]))
 
-(defn- style->str
-  "Replaces a style map with a style string."
-  [{:keys [style] :as attributes}]
-  (if (map? style)
-    (assoc attributes :style (->> style (map (fn [[style-key style-value]]
-                                               (str (name style-key) ":" (if (number? style-value)
-                                                                           (str style-value "px")
-                                                                           style-value))))
-                                  (str/join ";")))
-    attributes))
-
-(defn expand-styles
-  "Replaces reagent style maps with style strings, expected by Hiccup library."
-  [hiccup]
-  (cond (seq? hiccup) (map expand-styles hiccup)
-        (not (vector? hiccup)) hiccup
-        :else (let [[tag maybe-attributes & children] hiccup]
-                (if (not (map? maybe-attributes))
-                  (->> children (into [maybe-attributes])
-                       (remove nil?) (map expand-styles) (into [tag]))
-                  (into [tag (style->str maybe-attributes)]
-                        (map expand-styles children))))))
-
 (defn- expand-resources-inner
   "Returns a sequence of hiccups in which all resource keys are replaced with resource values."
   [resources hiccup]
@@ -69,7 +46,7 @@
   "Replaces href and src paths starting with / for all tags."
   [page-route {:keys [relative-paths path-prefix] :as config} hiccup]
   (cond (not (or relative-paths path-prefix)) hiccup
-        (seq? hiccup) (map expand-styles hiccup)
+        (seq? hiccup) (map replace-paths hiccup)
         (not (vector? hiccup)) hiccup
         :else (let [[tag maybe-attributes & children] hiccup]
                 (if (not (map? maybe-attributes))
