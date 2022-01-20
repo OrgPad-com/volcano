@@ -1,8 +1,9 @@
 /*.log
 /target
 /*-init.clj
-/resources/js
-/resources/css
+/example/resources/js
+/example/example.js
+/example/build
 /target
 /build
 out

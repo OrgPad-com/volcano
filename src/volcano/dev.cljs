@@ -2,7 +2,8 @@
   (:require [reagent.core :as r]
             [accountant.core :as accountant]
             [bidi.bidi :as b]
-            [volcano.hiccup :as volcano-hiccup]))
+            [volcano.hiccup :as volcano-hiccup]
+            [reagent.dom :as r-dom]))
 
 (defonce current-route (r/atom nil))
 
@@ -35,8 +36,7 @@
     (into [:<> (when nav-bar
                  (render-nav-bar config))]
           (if hiccups
-            (->> hiccups (map (partial volcano-hiccup/expand-resources resources))
-                 (map volcano-hiccup/unescape-strings))
+            (map (partial volcano-hiccup/expand-resources resources) hiccups)
             [[:div "Page " @current-route " not found, try to reload the browser!"]]))))
 
 (defn load-scripts!
@@ -59,3 +59,9 @@
       {:nav-handler       (partial update-route routes)
        :path-exists?      #(:handler (b/match-route routes %))
        :reload-same-path? true})))
+
+(defn mount-root
+  "Rendering of the current page inside :div#app element."
+  [config]
+  (load-scripts! config)
+  (r-dom/render [render config] (.getElementById js/document "app")))
