@@ -19,7 +19,7 @@
 
 (defn contact []
   (list
-    [:h1 "Contact"]
+    [:h1.colored "Contact"]
     [:div "My email address is " [:b "info@orgpad.com"]]
     [:a {:href (b/path-for routes :page/index)} "Back to index"]))
 
@@ -34,7 +34,7 @@
                       [:head
                        [:title "Your website title"]
                        [:meta {:charset "utf-8"}]
-                       [:link {:href "/css/my-web.css" :rel "stylesheet" :type "text/css"}]]
+                       [:link {:href "/css/example.css" :rel "stylesheet" :type "text/css"}]]
                       [:body :volcano/hiccups]]
    :exclude-files    #{"index.html"}
    :exclude-dirs     #{"js"}})

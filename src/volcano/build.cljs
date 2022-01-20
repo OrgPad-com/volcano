@@ -37,10 +37,17 @@
         route (or output-path (b/path-for routes page-id))
         path (str target-dir route)
         content (rdom-server/render-to-static-markup (generate-hiccup page-id config))]
-    (fs/writeFile path content #(println "HTML file" path "created."))))
+    (fs/writeFileSync path content)))
 
 (defn- build-pages!
   "Builds all sites."
   [{:keys [pages] :as config}]
   (doseq [page-id (keys pages)]
     (build-page! page-id config)))
+
+(defn build!
+  [{:keys [target-dir] :as config}]
+  (println "Building website into" target-dir "...")
+  (copy-resources! config)
+  (build-pages! config)
+  (println "Build done."))
