@@ -32,7 +32,7 @@
 (defn- build-page!
   "Build a single page-id of the given keyword and hiccup."
   [page-id {:keys [pages routes target-dir] :as config}]
-  (println "Building site" page-id "...")
+  (println "Building page" page-id "...")
   (let [{:keys [output-path]} (get pages page-id)
         route (or output-path (b/path-for routes page-id))
         path (str target-dir route)
@@ -45,9 +45,10 @@
   (doseq [page-id (keys pages)]
     (build-page! page-id config)))
 
-(defn build!
+(defn build-web!
   [{:keys [target-dir] :as config}]
-  (println "Building website into" target-dir "...")
-  (copy-resources! config)
-  (build-pages! config)
-  (println "Build done."))
+  (let [start-time (system-time)]
+    (println "Building website into" target-dir "...")
+    (copy-resources! config)
+    (build-pages! config)
+    (println "Build done in" (js/Math.round (- (system-time) start-time)) "ms.")))

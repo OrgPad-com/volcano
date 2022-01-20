@@ -2,7 +2,8 @@
   (:require [reagent.core :as r]
             [accountant.core :as accountant]
             [bidi.bidi :as b]
-            [volcano.hiccup :as volcano-hiccup]))
+            [volcano.hiccup :as volcano-hiccup]
+            [reagent.dom :as r-dom]))
 
 (defonce current-route (r/atom nil))
 
@@ -58,3 +59,9 @@
       {:nav-handler       (partial update-route routes)
        :path-exists?      #(:handler (b/match-route routes %))
        :reload-same-path? true})))
+
+(defn mount-root
+  "Rendering of the current page inside :div#app element."
+  [config]
+  (load-scripts! config)
+  (r-dom/render [render config] (.getElementById js/document "app")))

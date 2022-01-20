@@ -1,14 +1,11 @@
 (ns volcano.example.dev
   (:require [volcano.dev :as volcano]
-            [reagent.dom :as r-dom]
             [volcano.example.config :as config]))
 
 (defn mount-root
   "Rendering of the current page inside :div#app element."
   []
-  (volcano/load-scripts! (config/config))
-  (r-dom/render [volcano/render (config/config)]
-                (.getElementById js/document "app")))
+  (volcano/mount-root (config/config)))
 
 (defn init
   "Init function of the dev."

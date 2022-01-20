@@ -4,4 +4,5 @@
 
 (defn build
   []
-  (println "running build volcano"))
+  (build/build-web! (config/config))
+  (.exit js/process))
