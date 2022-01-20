@@ -1,6 +1,5 @@
 (ns volcano.hiccup
-  (:require [clojure.string :as str]
-            #?(:cljs [goog.string :as gstring])))
+  (:require [clojure.string :as str]))
 
 (defn- expand-resources-inner
   "Returns a sequence of hiccups in which all resource keys are replaced with resource values."
@@ -55,14 +54,3 @@
                        (remove nil?) (map (partial replace-paths page-route config)) (into [tag]))
                   (into [tag (replace-href-and-src page-route config maybe-attributes)]
                         (map (partial replace-paths page-route config) children))))))
-
-#?(:cljs
-   (defn unescape-strings [hiccup]
-     (cond (string? hiccup) (gstring/unescapeEntities hiccup)
-           (not (vector? hiccup)) hiccup
-           :else (let [[tag maybe-attributes & children] hiccup]
-                   (if (not (map? maybe-attributes))
-                     (->> children (into [maybe-attributes])
-                          (remove nil?) (map unescape-strings) (into [tag]))
-                     (into [tag maybe-attributes]
-                           (map unescape-strings children)))))))
