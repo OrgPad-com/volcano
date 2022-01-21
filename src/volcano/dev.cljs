@@ -60,8 +60,14 @@
        :path-exists?      #(:handler (b/match-route routes %))
        :reload-same-path? true})))
 
-(defn mount-root
+(defn mount-root!
   "Rendering of the current page inside :div#app element."
   [config]
   (load-scripts! config)
   (r-dom/render [render config] (.getElementById js/document "app")))
+
+(defn init!
+  "Init function of the dev."
+  [config]
+  (set-routing! config)
+  (mount-root! config))

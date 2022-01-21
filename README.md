@@ -130,8 +130,7 @@ To do live code reloading in development, write the following code in a .cljs fi
 (defn init
   "Init function of the dev."
   []
-  (volcano/set-routing! (config/config))
-  (mount-root))
+  (volcano/init! (config/config)))
 ```
 
 The function `init` is called when dev is loaded in the browser, setting the HTML5 routing and history. Everytime a code
@@ -376,6 +375,12 @@ interop. For building static website, just call the JS function from string.
                 :cljs {:on-click #(js/send)})
  "Send"]
 ```
+
+### Escaping HTML and how to insert &amp;nbsp;
+
+Reagent automatically escapes certain characters, so for example `<html>` string turns into `&lt;html&gt;`.
+This mostly works just fine, but to insert non-breaking space, it is not possible to use `&nbsp;`. Instead,
+use the `&nbsp;` character directly using `\u00A0`. To simplify inserting this, you can use `volcano.hiccup/nbsp`.
 
 ## Example websites
 

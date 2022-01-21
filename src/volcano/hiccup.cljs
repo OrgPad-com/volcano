@@ -1,6 +1,8 @@
 (ns volcano.hiccup
   (:require [clojure.string :as str]))
 
+(def nbsp "\u00A0")
+
 (defn- expand-resources-inner
   "Returns a sequence of hiccups in which all resource keys are replaced with resource values."
   [resources hiccup]
