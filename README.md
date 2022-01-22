@@ -8,8 +8,8 @@
 > ― Andrea Gibson, The Madness Vase
 
 **Breaking change:** *Since the version 0.2.0, we use NodeJS and server-side rendering with React and Reagent to build
-static HTML files for production. There are multiple reasons. Builds with NodeJS are much faster. Further, we use
-the same library for rendering in development and in production. This removes a lot of random differences. 
+static HTML files for production. There are multiple reasons. Builds with NodeJS are much faster. Further, we use the
+same library for rendering in development and in production. This removes a lot of random differences.
 **Consult the changes below.***
 
 Well, we really love hot-code reloading while developing single page applications (SPA) in ClojureScript. It was
@@ -68,8 +68,9 @@ repository. First, include this dependency into your project:
 Somewhere define a config map:
 
 ```clojure
-(ns my-web.config
-  (:require [bidi.bidi :as b]))
+(ns volcano.example.config
+  (:require [bidi.bidi :as b]
+    [shadow.resource :as resource]))
 
 (def routes
   ["" [["/index.html" :page/index]
@@ -83,19 +84,24 @@ Somewhere define a config map:
            :src    "/img/volcano.png"}]
     [:div {:style {:color "green"}} "Some introductory text: "
      [:a {:href (b/path-for routes :page/contact)} "Go to contacts"]]
+    [:div
+     [:button {:on-click       #(js/incrementCounter)
+               :volcanoonclick "incrementCounter()"}
+      "Click me!"]
+     [:span#counter "Button not yet clicked!"]]
     [:ul
      (for [index (range 10)]
        [:li "Element " (inc index)])]))
 
 (defn contact []
   (list
-    [:h1 "Contact"]
+    [:h1.colored "Contact"]
     [:div "My email address is " [:b "info@orgpad.com"]]
     [:a {:href (b/path-for routes :page/index)} "Back to index"]))
 
 (defn config []
-  {:resource-dir     "resources"
-   :target-dir       "build"
+  {:resource-dir     "example/resources"
+   :target-dir       "example/build"
    :pages            {:page/index   {:hiccups (index)}
                       :page/contact {:hiccups (contact)}}
    :routes           routes
@@ -104,8 +110,11 @@ Somewhere define a config map:
                       [:head
                        [:title "Your website title"]
                        [:meta {:charset "utf-8"}]
-                       [:link {:href "/css/my-web.css" :rel "stylesheet" :type "text/css"}]]
+                       [:link {:href "/css/example.css" :rel "stylesheet" :type "text/css"}]
+                       [:script :script/counter]]
                       [:body :volcano/hiccups]]
+   :resources        {:script/counter [(resource/inline "volcano/example/counter.js")]}
+   :scripts          [:script/counter]
    :exclude-files    #{"index.html"}
    :exclude-dirs     #{"js"}})
 ```
@@ -120,7 +129,7 @@ To do live code reloading in development, write the following code in a .cljs fi
 ```clojure
 (ns my-web.dev
   (:require [volcano.dev :as volcano]
-            [my-web.config :as config]))
+    [my-web.config :as config]))
 
 (defn mount-root
   "Rendering of the current page inside :div#app element."
@@ -173,15 +182,15 @@ Write your `shadow-cljs.edn` file looking like this:
                 [venantius/accountant "0.2.5"]
                 [binaryage/devtools "0.9.10"]]
  :nrepl        {:port 9500}
- :builds       {:web       {:target     :browser
-                            :output-dir "resources/js"
-                            :asset-path "/js"
-                            :modules    {:main {:init-fn my-web.dev/init}}
-                            :devtools   {:http-root      "resources"
-                                         :http-port      3500
-                                         :after-load     my-web.dev/mount-root
-                                         :watch-dir      "resources"
-                                         :browser-inject :main}}
+ :builds       {:web   {:target     :browser
+                        :output-dir "resources/js"
+                        :asset-path "/js"
+                        :modules    {:main {:init-fn my-web.dev/init}}
+                        :devtools   {:http-root      "resources"
+                                     :http-port      3500
+                                     :after-load     my-web.dev/mount-root
+                                     :watch-dir      "resources"
+                                     :browser-inject :main}}
                 :build {:target           :node-script
                         :main             my-web.build/build
                         :output-to        "target/my-web.js"
@@ -215,7 +224,7 @@ You create another file like this:
 ```clojure
 (ns my-web.build
   (:require [volcano.build :as build]
-            [my-web.config :as config]))
+    [my-web.config :as config]))
 
 (defn build
   []
@@ -230,8 +239,8 @@ shadow-cljs release build
 node target/my-web
 ```
 
-It will copy the non-excluded static resources to the build directory. Then, it builds a single html file
-for each defined page. The output may look like this:
+It will copy the non-excluded static resources to the build directory. Then, it builds a single html file for each
+defined page. The output may look like this:
 
 ```
 Building website into build ...
@@ -367,20 +376,20 @@ evaluated during hot code reloading whenever any code is updated. For building s
 into your template.
 
 To attach a JS function to an event, you have to write different code for development and for building the static
-website, using the reader literals. In development, attach a ClojureScript function calling the JS function using JS
-interop. For building static website, just call the JS function from string.
+website. In development, attach a ClojureScript function calling the JS function using JS interop. For production
+building, use the same event with volcano prefix, without dashes, and just call the JS function from string.
 
 ```clojure
-[:div.button #?(:clj  {:onclick "send();"}
-                :cljs {:on-click #(js/send)})
+[:div.button {:on-click       #(js/send)
+              :volcanoonclick "send()"}
  "Send"]
 ```
 
 ### Escaping HTML and how to insert &amp;nbsp;
 
-Reagent automatically escapes certain characters, so for example `<html>` string turns into `&lt;html&gt;`.
-This mostly works just fine, but to insert non-breaking space, it is not possible to use `&nbsp;`. Instead,
-use the `&nbsp;` character directly using `\u00A0`. To simplify inserting this, you can use `volcano.hiccup/nbsp`.
+Reagent automatically escapes certain characters, so for example `<html>` string turns into `&lt;html&gt;`. This mostly
+works just fine, but to insert non-breaking space, it is not possible to use `&nbsp;`. Instead, use the `&nbsp;`
+character directly using `\u00A0`. To simplify inserting this, you can use `volcano.hiccup/nbsp`.
 
 ## Example websites
 

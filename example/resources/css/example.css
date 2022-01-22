@@ -1,3 +1,7 @@
 .colored {
   color: blue;
 }
+
+#counter {
+  padding-left: 8px;
+}

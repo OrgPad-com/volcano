@@ -5,23 +5,27 @@
 
 (defn- expand-resources-inner
   "Returns a sequence of hiccups in which all resource keys are replaced with resource values."
-  [resources hiccup]
-  (cond (seq? hiccup) (->> hiccup (map (partial expand-resources-inner resources))
+  [resources scripts hiccup]
+  (cond (seq? hiccup) (->> hiccup (map (partial expand-resources-inner resources scripts))
                            (remove nil?)
                            (apply concat))
-        (contains? resources hiccup) (->> hiccup (get resources)
-                                          (map (partial expand-resources-inner resources))
-                                          (remove nil?)
-                                          (apply concat))
+        (contains? resources hiccup) (let [expanded-resource (->> hiccup (get resources)
+                                                                  (map (partial expand-resources-inner resources
+                                                                                scripts))
+                                                                  (remove nil?)
+                                                                  (apply concat))]
+                                       (if (contains? scripts hiccup)
+                                         [{:dangerouslySetInnerHTML {:__html (first expanded-resource)}}]
+                                         expanded-resource))
         (not (vector? hiccup)) [hiccup]
         :else (let [[tag & children] hiccup]
-                [(into [tag] (->> children (map (partial expand-resources-inner resources))
+                [(into [tag] (->> children (map (partial expand-resources-inner resources scripts))
                                   (apply concat) (remove nil?)))])))
 
 (defn expand-resources
   "Replaces reagent style maps with style strings, expected by hiccup."
-  [resources hiccup]
-  (first (expand-resources-inner resources hiccup)))
+  [resources scripts hiccup]
+  (first (expand-resources-inner resources scripts hiccup)))
 
 (defn- replace-path
   "Either adds a path prefix to path, or converts path to a relative path from page-route."
@@ -47,7 +51,8 @@
 (defn replace-paths
   "Replaces href and src paths starting with / for all tags."
   [page-route {:keys [relative-paths path-prefix] :as config} hiccup]
-  (cond (not (or relative-paths path-prefix)) hiccup
+  (cond (or (not (or relative-paths path-prefix))
+            (map? hiccup)) hiccup
         (seq? hiccup) (map replace-paths hiccup)
         (not (vector? hiccup)) hiccup
         :else (let [[tag maybe-attributes & children] hiccup]

@@ -1,5 +1,6 @@
 (ns volcano.example.config
-  (:require [bidi.bidi :as b]))
+  (:require [bidi.bidi :as b]
+            [shadow.resource :as resource]))
 
 (def routes
   ["" [["/index.html" :page/index]
@@ -13,6 +14,11 @@
            :src    "/img/volcano.png"}]
     [:div {:style {:color "green"}} "Some introductory text: "
      [:a {:href (b/path-for routes :page/contact)} "Go to contacts"]]
+    [:div
+     [:button {:on-click       #(js/incrementCounter)
+               :volcanoonclick "incrementCounter()"}
+      "Click me!"]
+     [:span#counter "Button not yet clicked!"]]
     [:ul
      (for [index (range 10)]
        [:li "Element " (inc index)])]))
@@ -34,8 +40,11 @@
                       [:head
                        [:title "Your website title"]
                        [:meta {:charset "utf-8"}]
-                       [:link {:href "/css/example.css" :rel "stylesheet" :type "text/css"}]]
+                       [:link {:href "/css/example.css" :rel "stylesheet" :type "text/css"}]
+                       [:script :script/counter]]
                       [:body :volcano/hiccups]]
+   :resources        {:script/counter [(resource/inline "volcano/example/counter.js")]}
+   :scripts          [:script/counter]
    :exclude-files    #{"index.html"}
    :exclude-dirs     #{"js"}})
 

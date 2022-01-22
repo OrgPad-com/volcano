@@ -24,9 +24,11 @@
 
 (defn- generate-hiccup
   "Generates a hiccup from the given template with inserted hiccups, expanded resources and styles."
-  [page-id {:keys [default-template resources routes pages] :as config}]
-  (let [{:keys [hiccups template] :or {template default-template}} (get pages page-id)]
-    (->> template (volcano-hiccup/expand-resources (assoc resources :volcano/hiccups hiccups))
+  [page-id {:keys [default-template resources routes pages scripts] :as config}]
+  (let [{:keys [hiccups template] :or {template default-template}} (get pages page-id)
+        resources' (assoc resources :volcano/hiccups hiccups)
+        scripts (set scripts)]
+    (->> template (volcano-hiccup/expand-resources resources' scripts)
          (volcano-hiccup/replace-paths (b/path-for routes page-id) config))))
 
 (defn- build-page!
@@ -36,7 +38,9 @@
   (let [{:keys [output-path]} (get pages page-id)
         route (or output-path (b/path-for routes page-id))
         path (str target-dir route)
-        content (rdom-server/render-to-static-markup (generate-hiccup page-id config))]
+        hiccup (generate-hiccup page-id config)
+        content (-> (rdom-server/render-to-static-markup hiccup)
+                    (str/replace #"volcanoon" "on"))]
     (fs/writeFileSync path content)))
 
 (defn- build-pages!
