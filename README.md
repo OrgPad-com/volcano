@@ -61,7 +61,7 @@ configuration needed to run Volcano. Consult the generated README.md.
 Next, we explain how to setup Volcano as part of your existing project. You can consult `example` directory in this
 repository. First, include this dependency into your project:
 
-[![Clojars Project](http://clojars.org/orgpad/volcano/latest-version.svg)](http://clojars.org/orgpad/vulcano)
+[![Clojars Project](http://clojars.org/orgpad/volcano/latest-version.svg)](http://clojars.org/orgpad/volcano)
 
 ### Defining website config
 
